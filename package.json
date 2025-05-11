@@ -9,7 +9,8 @@
     "dev_backend": "python backend/app/main.py",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "install_req": "pip install -r backend/requirements.txt && npm install && npm install -g concurrently"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.5",

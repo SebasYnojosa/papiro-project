@@ -1,6 +1,8 @@
 import os
+os.environ["NUMBA_DISABLE_JIT"] = "1" # Desactivar JIT para evitar problemas con la librería rembg
 from flask import Flask, jsonify, request
 from PIL import Image
+from rembg import remove
 
 app = Flask(__name__)
 
@@ -32,6 +34,8 @@ def upload_image():
             img_cropped = img.crop((0, height // 2, width, height))
             # Cortar la imagen en 3 partes de forma horizontal y quedarse con la parte central
             img_cropped = img_cropped.crop((width // 3, 0, 2 * width // 3, height // 2))
+            # Quitar el fondo de la imagen
+            img_cropped = remove(img_cropped)
             # Guardar la imagen cortada
             cropped_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
             img_cropped.save(cropped_path)
