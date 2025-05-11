@@ -41,18 +41,33 @@ const CustomWebcam = () => {
 
     return (
         <div className="flex h-screen relative">
-            <div className="flex-1 flex items-center justify-center bg-gray-100">
-                {imageSrc ? (
-                    <img src={imageSrc} alt="webcam" />
-                ) : (
-                    <div className="text-center">
-                        <p>La captura aparecerá aquí</p>
-                    </div>
-                )}
+            <div className="flex-1 flex items-center justify-center bg-gray-100 ">
+                El rival aparecerá en la pantalla, por favor espera a que se cargue la cámara.
             </div>
 
             <div className="flex-1 bg-gray-200">
-                <Webcam ref={webcamRef} className="w-full h-full object-cover"/>
+                {imageSrc ? (
+                    <>
+                        <img src={imageSrc} alt="captura" className="w-full h-full object-cover" />
+                        <div  className="absolute top-0 right-0 w-1/2 h-1/2 bg-opacity-70 pointer-events-none"></div>
+                        <div className="absolute bottom-0 left-1/2 w-1/8 h-1/2 bg-opacity-70 pointer-events-none"></div>
+                        {/* Bloque bordeado con color verde que cubre un cuarto en el centro */}
+                        <div className="absolute bottom-0 right-1/8 w-1/4 h-1/2 border-4 border-green-500 pointer-events-none"></div>
+                        {/* Bloque opaco que cubre el último octavo de la parte inferior */}
+                        <div className="absolute bottom-0 right-0 w-1/8 h-1/2 bg-opacity-70 pointer-events-none"></div>
+                    </>
+                ) : (
+                    <>
+                        <Webcam ref={webcamRef}  className="w-full h-full object-cover"/>
+                        <div  className="absolute top-0 right-0 w-1/2 h-1/2 bg-opacity-70 pointer-events-none"></div>
+                        <div className="absolute bottom-0 left-1/2 w-1/8 h-1/2 bg-opacity-70 pointer-events-none"></div>
+                        {/* Bloque bordeado con color verde que cubre un cuarto en el centro */}
+                        <div className="absolute bottom-0 right-1/8 w-1/4 h-1/2 border-4 border-green-500 pointer-events-none"></div>
+                        {/* Bloque opaco que cubre el último octavo de la parte inferior */}
+                        <div className="absolute bottom-0 right-0 w-1/8 h-1/2 bg-opacity-70 pointer-events-none"></div>
+                    </>
+                )}
+                
             </div>
 
             {/* Button at the bottom */}

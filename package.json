@@ -4,7 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently --kill-others-on-fail \"npm run dev_frontend\" \"npm run dev_backend\"",
+    "dev_frontend": "vite",
+    "dev_backend": "python backend/app/main.py",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
