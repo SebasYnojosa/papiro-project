@@ -1,12 +1,10 @@
-import CustomWebcam from "./CustomWebcam"
+import CustomWebcam from "./components/CustomWebcam"
 
 
 const App = () => {
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
-      <h1 className="text-2xl font-bold mb-4">Webcam Capture</h1>
+    <div>
       <CustomWebcam />
-      <p className="mt-4 text-gray-600">Capture your webcam feed!</p>
     </div>
   )
 }
