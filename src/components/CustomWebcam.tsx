@@ -14,6 +14,8 @@ const CustomWebcam = () => {
     const [isCapturing, setIsCapturing] = useState(false);
     const [counter, setCounter] = useState(3);
 
+    const navigate = useNavigate();
+
     const jugadaRivalRandom = () => {
         const randomJugada = Math.floor(Math.random() * 3);
         setJugadaRival(randomJugada);
@@ -268,6 +270,11 @@ const obtenerResultado = (jugador: number, ia: number) => {
                     </div>
                 </>
             )}  
+
+            {/* Boton para ver las instrucciones */}
+            <button onClick={() => navigate('/instrucciones')} className="absolute top-4 left-4 px-3 py-1 bg-yellow-500 text-white rounded cursor-pointer">
+                Instrucciones
+            </button>
         </div>
     );
 };
