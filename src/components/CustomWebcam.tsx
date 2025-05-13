@@ -161,17 +161,17 @@ const obtenerResultado = (jugador: number, ia: number) => {
             
             {/* Resultado de la predicción */}
             {isPredicted ? (
-                <div className="flex-1 flex items-center justify-center bg-screamingreen ">
+                <div className="flex-1 flex items-center justify-center bg-tomato ">
                     {handleJugada(jugadaRival) == "Piedra" ? (
-                        <img src="/public/piedra.png" alt="Piedra" className="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2" />
+                        <img src="/piedra.png" alt="Piedra" className="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2" />
                     ) : handleJugada(jugadaRival) == "Papel" ? (
-                        <img src="/public/papel.png" alt="Papel" className="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2" />
+                        <img src="/papel.png" alt="Papel" className="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2" />
                     ) : (
-                        <img src="/public/tijera.png" alt="Tijera" className="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2" />
+                        <img src="/tijera.png" alt="Tijera" className="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2" />
                     )}  
                 </div>
             ) : (
-                <div className="flex-1 flex items-center justify-center bg-screamingreen ">
+                <div className="flex-1 flex items-center justify-center bg-tomato ">
                     El rival aparecerá en la pantalla, por favor espera a que se cargue la cámara.
                 </div>
             )}
@@ -186,6 +186,14 @@ const obtenerResultado = (jugador: number, ia: number) => {
                         <div className="absolute bottom-0 right-1/8 w-1/4 h-1/2 border-4 border-green-500 pointer-events-none"></div>
                         {/* Bloque opaco que cubre el último octavo de la parte inferior */}
                         <div className="absolute bottom-0 right-0 w-1/8 h-1/2 bg-opacity-70 pointer-events-none"></div>
+                        {/* Texto que indica quien es el usuario */}
+                        <div className="absolute top-16 left-3/4 transform -translate-x-1/2 -translate-y-1/2 rounded p-4 text-screamingreen">
+                            <p className="text-8xl">Tú</p>
+                        </div>
+                        {/* Texto que indica quien es el rival */}
+                        <div className="absolute top-16 left-1/4 transform -translate-x-1/2 -translate-y-1/2 rounded p-4 text-atomictangerine">
+                            <p className="text-8xl">Rival</p>
+                        </div>
                     </>
                 ) : (
                     <>
@@ -196,6 +204,14 @@ const obtenerResultado = (jugador: number, ia: number) => {
                         <div className="absolute bottom-0 right-1/8 w-1/4 h-1/2 border-4 border-green-500 pointer-events-none"></div>
                         {/* Bloque opaco que cubre el último octavo de la parte inferior */}
                         <div className="absolute bottom-0 right-0 w-1/8 h-1/2 bg-opacity-70 pointer-events-none"></div>
+                        {/* Texto que indica quien es el usuario */}
+                        <div className="absolute top-16 left-3/4 transform -translate-x-1/2 -translate-y-1/2 rounded p-4 text-screamingreen">
+                            <p className="text-8xl">Tú</p>
+                        </div>
+                        {/* Texto que indica quien es el rival */}
+                        <div className="absolute top-16 left-1/4 transform -translate-x-1/2 -translate-y-1/2 rounded p-4 text-atomictangerine">
+                            <p className="text-8xl">Rival</p>
+                        </div>
                     </>
                 )}
                 
@@ -205,16 +221,17 @@ const obtenerResultado = (jugador: number, ia: number) => {
             <button className="absolute top-4 left-4 px-3 py-1 bg-yellow-500 text-white rounded">
                 Instrucciones
             </button>
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2"> 
+                {/* Si la captura está cargada y ya se hizo la predicción, entonces muestra el botón para jugar otra vez */}
                 {(imageSrc && isPredicted) ? (
                     <>
                         <button onClick={retake} className="px-4 py-2 bg-lapislazuli text-white rounded cursor-pointer">
-                            Intentar de nuevo
+                            Jugar de nuevo
                         </button>
                     </>
                 ) : (
                     (isPredicting || isCapturing) ? (
-                        <button onClick={capture} className="px-4 py-2 bg-tomato text-white rounded disabled cursor-not-allowed">
+                        <button onClick={capture} className="px-4 py-2 bg-crimson text-white xt-white rounded disabled cursor-not-allowed">
                             Esperando...
                         </button>
                     ) : (
@@ -227,14 +244,14 @@ const obtenerResultado = (jugador: number, ia: number) => {
 
             {/* Contador de 3 segundos para capturar la imagen */}
             {isCapturing && (
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 px-6 rounded-full text-white bg-black">
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 px-6 rounded-full text-white">
                     <p className="text-9xl">{counter}</p>
                 </div>
             )}
 
             {/* Analizando la imagen, con un contador que cuenta 3 segundos */}
             {isPredicting && (
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 rounded text-white bg-black">
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 rounded text-white ">
                     <p className="text-8xl">Analizando...</p>
                 </div>
             )}
@@ -250,7 +267,7 @@ const obtenerResultado = (jugador: number, ia: number) => {
                         <img src="/public/tijera.png" alt="Tijera" className="absolute top-1/2 left-3/4 transform -translate-x-1/2 -translate-y-1/2" />
                     )}
                     
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded p-4 text-white bg-black">
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded p-4 text-white ">
                         <p className="text-8xl">{handleEnfrentamiento()}</p>
                     </div>
                 </>
