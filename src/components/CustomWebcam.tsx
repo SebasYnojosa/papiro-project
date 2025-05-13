@@ -7,10 +7,17 @@ const CustomWebcam = () => {
 
     const [imageSrc, setImageSrc] = useState<string | null>(null);
     const [jugada, setJugada] = useState<number | null>(null);
+    const [jugadaRival, setJugadaRival] = useState<number | null>(null);
     const [isPredicting, setIsPredicting] = useState(false);
     const [isPredicted, setIsPredicted] = useState(false);
     const [isCapturing, setIsCapturing] = useState(false);
     const [counter, setCounter] = useState(3);
+
+    const jugadaRivalRandom = () => {
+        const randomJugada = Math.floor(Math.random() * 3);
+        setJugadaRival(randomJugada);
+        return randomJugada;
+    }
     
     const uploadImage = useCallback(async () => {
         console.log("uploadImage se ejecutó");
@@ -38,10 +45,12 @@ const CustomWebcam = () => {
             console.log("Predicción:", jugada);
             setJugada(jugada);
             setIsPredicted(true);
+            
         } catch (error) {
             console.error("Error uploading image:", error);
         } finally {
             setIsPredicting(false);
+            jugadaRivalRandom();
         }
     }, [imageSrc])
 
@@ -105,9 +114,23 @@ const CustomWebcam = () => {
 
     return (
         <div className="flex h-screen relative">
-            <div className="flex-1 flex items-center justify-center bg-gray-100 ">
-                El rival aparecerá en la pantalla, por favor espera a que se cargue la cámara.
-            </div>
+            
+            {/* Resultado de la predicción */}
+            {isPredicted ? (
+                <div className="flex-1 flex items-center justify-center bg-gray-100 ">
+                    {handleJugada(jugadaRival) == "Piedra" ? (
+                        <img src="/public/piedra.png" alt="Piedra" className="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2" />
+                    ) : handleJugada(jugadaRival) == "Papel" ? (
+                        <img src="/public/papel.png" alt="Papel" className="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2" />
+                    ) : (
+                        <img src="/public/tijera.png" alt="Tijera" className="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2" />
+                    )}  
+                </div>
+            ) : (
+                <div className="flex-1 flex items-center justify-center bg-gray-100 ">
+                    El rival aparecerá en la pantalla, por favor espera a que se cargue la cámara.
+                </div>
+            )}
 
             <div className="flex-1 bg-gray-200">
                 {imageSrc ? (
@@ -171,9 +194,8 @@ const CustomWebcam = () => {
                     <img src="/public/papel.png" alt="Papel" className="absolute top-1/2 left-3/4 transform -translate-x-1/2 -translate-y-1/2" />
                 ) : (
                     <img src="/public/tijera.png" alt="Tijera" className="absolute top-1/2 left-3/4 transform -translate-x-1/2 -translate-y-1/2" />
-                ) 
-            )}
-            
+                )   
+            )}  
         </div>
     );
 };
