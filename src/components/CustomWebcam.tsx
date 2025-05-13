@@ -1,19 +1,31 @@
 import Webcam from "react-webcam";
 import { useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
+import { useNavigate } from 'react-router-dom';
 
 const CustomWebcam = () => {
     const webcamRef = useRef<Webcam>(null);
 
     const [imageSrc, setImageSrc] = useState<string | null>(null);
     const [jugada, setJugada] = useState<number | null>(null);
+    const [jugadaRival, setJugadaRival] = useState<number | null>(null);
     const [isPredicting, setIsPredicting] = useState(false);
     const [isPredicted, setIsPredicted] = useState(false);
     const [isCapturing, setIsCapturing] = useState(false);
     const [counter, setCounter] = useState(3);
+
+    const jugadaRivalRandom = () => {
+        const randomJugada = Math.floor(Math.random() * 3);
+        setJugadaRival(randomJugada);
+        return randomJugada;
+    }
     
     const uploadImage = useCallback(async () => {
         console.log("uploadImage se ejecutó");
+        const jugadaIA = elegirJugadaIA();
+        const resultado = jugada !== null ? obtenerResultado(jugada, jugadaIA) : "Jugada no válida";
+        console.log("IA:", jugadaIA, "Resultado:", resultado);
+
         if (!imageSrc) return;
         console.log("La imagen existe");
         
@@ -38,12 +50,33 @@ const CustomWebcam = () => {
             console.log("Predicción:", jugada);
             setJugada(jugada);
             setIsPredicted(true);
+            
         } catch (error) {
             console.error("Error uploading image:", error);
         } finally {
             setIsPredicting(false);
+            jugadaRivalRandom();
         }
     }, [imageSrc])
+
+    
+
+const elegirJugadaIA = () => {
+    const eleccion = Math.floor(Math.random() * 3); // 0, 1, 2
+    setJugadaRival(eleccion);
+    return eleccion;
+};
+
+const obtenerResultado = (jugador: number, ia: number) => {
+    if (jugador === ia) return "Empate";
+    if (
+        (jugador === 0 && ia === 1) || // Papel gana a Piedra
+        (jugador === 1 && ia === 2) || // Piedra gana a Tijera
+        (jugador === 2 && ia === 0)    // Tijera gana a Papel
+    ) return "Ganaste";
+    return "Perdiste";
+};
+
 
 
     const capture = useCallback(() => {
@@ -103,11 +136,45 @@ const CustomWebcam = () => {
         }
     };
 
+    const handleEnfrentamiento = () => {
+        if (jugada !== null && jugadaRival !== null) {
+            if (jugada === jugadaRival) {
+                return "Empate";
+            } else if (
+                (jugada === 0 && jugadaRival === 1) || // Papel gana a Piedra
+                (jugada === 1 && jugadaRival === 2) || // Piedra gana a Tijera
+                (jugada === 2 && jugadaRival === 0)    // Tijera gana a Papel
+            ) {
+                return "Ganaste";
+            }
+            return "Perdiste";
+        } else {
+            console.log("No se han realizado las jugadas");
+        }
+    }
+
+    
+
     return (
+        
         <div className="flex h-screen relative">
-            <div className="flex-1 flex items-center justify-center bg-gray-100 ">
-                El rival aparecerá en la pantalla, por favor espera a que se cargue la cámara.
-            </div>
+            
+            {/* Resultado de la predicción */}
+            {isPredicted ? (
+                <div className="flex-1 flex items-center justify-center bg-screamingreen ">
+                    {handleJugada(jugadaRival) == "Piedra" ? (
+                        <img src="/public/piedra.png" alt="Piedra" className="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2" />
+                    ) : handleJugada(jugadaRival) == "Papel" ? (
+                        <img src="/public/papel.png" alt="Papel" className="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2" />
+                    ) : (
+                        <img src="/public/tijera.png" alt="Tijera" className="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2" />
+                    )}  
+                </div>
+            ) : (
+                <div className="flex-1 flex items-center justify-center bg-screamingreen ">
+                    El rival aparecerá en la pantalla, por favor espera a que se cargue la cámara.
+                </div>
+            )}
 
             <div className="flex-1 bg-gray-200">
                 {imageSrc ? (
@@ -135,45 +202,59 @@ const CustomWebcam = () => {
             </div>
 
             {/* Button at the bottom */}
+            <button className="absolute top-4 left-4 px-3 py-1 bg-yellow-500 text-white rounded">
+                Instrucciones
+            </button>
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-                {imageSrc ? (
+                {(imageSrc && isPredicted) ? (
                     <>
-                        <button onClick={retake} className="px-4 py-2 bg-blue-500 text-white rounded cursor-pointer">
-                            Retomar captura
+                        <button onClick={retake} className="px-4 py-2 bg-lapislazuli text-white rounded cursor-pointer">
+                            Intentar de nuevo
                         </button>
                     </>
                 ) : (
-                    <button onClick={capture} className="px-4 py-2 bg-blue-500 text-white rounded cursor-pointer">
-                        Tomar captura
-                    </button>
+                    (isPredicting || isCapturing) ? (
+                        <button onClick={capture} className="px-4 py-2 bg-tomato text-white rounded disabled cursor-not-allowed">
+                            Esperando...
+                        </button>
+                    ) : (
+                        <button onClick={capture} className="px-4 py-2 bg-lapislazuli text-white rounded cursor-pointer">
+                            Capturar imagen
+                        </button>
+                    )
                 )}
             </div>
 
             {/* Contador de 3 segundos para capturar la imagen */}
             {isCapturing && (
-                <div className="absolute top-1/2 left-3/4 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded shadow">
-                    <p className="text-lg">{counter}</p>
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 px-6 rounded-full text-white bg-black">
+                    <p className="text-9xl">{counter}</p>
                 </div>
             )}
 
             {/* Analizando la imagen, con un contador que cuenta 3 segundos */}
             {isPredicting && (
-                <div className="absolute top-1/2 left-3/4 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded shadow">
-                    <p>Analizando...</p>
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 rounded text-white bg-black">
+                    <p className="text-8xl">Analizando...</p>
                 </div>
             )}
 
             {/* Resultado de la predicción */}
             {isPredicted && (
-                handleJugada(jugada) == "Piedra" ? (
-                    <img src="/public/piedra.png" alt="Piedra" className="absolute top-1/2 left-3/4 transform -translate-x-1/2 -translate-y-1/2" />
-                ) : handleJugada(jugada) == "Papel" ? (
-                    <img src="/public/papel.png" alt="Papel" className="absolute top-1/2 left-3/4 transform -translate-x-1/2 -translate-y-1/2" />
-                ) : (
-                    <img src="/public/tijera.png" alt="Tijera" className="absolute top-1/2 left-3/4 transform -translate-x-1/2 -translate-y-1/2" />
-                ) 
-            )}
-            
+                <>
+                    {handleJugada(jugada) == "Piedra" ? (
+                        <img src="/public/piedra.png" alt="Piedra" className="absolute top-1/2 left-3/4 transform -translate-x-1/2 -translate-y-1/2" />
+                    ) : handleJugada(jugada) == "Papel" ? (
+                        <img src="/public/papel.png" alt="Papel" className="absolute top-1/2 left-3/4 transform -translate-x-1/2 -translate-y-1/2" />
+                    ) : (
+                        <img src="/public/tijera.png" alt="Tijera" className="absolute top-1/2 left-3/4 transform -translate-x-1/2 -translate-y-1/2" />
+                    )}
+                    
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded p-4 text-white bg-black">
+                        <p className="text-8xl">{handleEnfrentamiento()}</p>
+                    </div>
+                </>
+            )}  
         </div>
     );
 };

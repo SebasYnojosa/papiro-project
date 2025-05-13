@@ -3,3 +3,9 @@
 .bg-opacity-70 {
   background-color: rgba(0, 0, 0, 0.7);
 }
+
+@theme {
+  --color-screamingreen: #B6FF85;
+  --color-lapislazuli: #155EA2;
+  --color-tomato: #F95738;
+}
