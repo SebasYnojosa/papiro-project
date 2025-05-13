@@ -191,7 +191,7 @@ const obtenerResultado = (jugador: number, ia: number) => {
                             <p className="text-8xl">Tú</p>
                         </div>
                         {/* Texto que indica quien es el rival */}
-                        <div className="absolute top-16 left-1/4 transform -translate-x-1/2 -translate-y-1/2 rounded p-4 text-atomictangerine">
+                        <div className="absolute top-16 left-1/4 transform -translate-x-1/2 -translate-y-1/2 rounded p-4 text-white">
                             <p className="text-8xl">Rival</p>
                         </div>
                     </>
@@ -209,7 +209,7 @@ const obtenerResultado = (jugador: number, ia: number) => {
                             <p className="text-8xl">Tú</p>
                         </div>
                         {/* Texto que indica quien es el rival */}
-                        <div className="absolute top-16 left-1/4 transform -translate-x-1/2 -translate-y-1/2 rounded p-4 text-atomictangerine">
+                        <div className="absolute top-16 left-1/4 transform -translate-x-1/2 -translate-y-1/2 rounded p-4 text-white">
                             <p className="text-8xl">Rival</p>
                         </div>
                     </>
@@ -230,13 +230,9 @@ const obtenerResultado = (jugador: number, ia: number) => {
                         </button>
                     </>
                 ) : (
-                    (isPredicting || isCapturing) ? (
-                        <button onClick={capture} className="px-4 py-2 bg-crimson text-white xt-white rounded disabled cursor-not-allowed">
-                            Esperando...
-                        </button>
-                    ) : (
+                    !(isPredicting || isCapturing) && (
                         <button onClick={capture} className="px-4 py-2 bg-lapislazuli text-white rounded cursor-pointer">
-                            Capturar imagen
+                            Empezar
                         </button>
                     )
                 )}
@@ -252,7 +248,7 @@ const obtenerResultado = (jugador: number, ia: number) => {
             {/* Analizando la imagen, con un contador que cuenta 3 segundos */}
             {isPredicting && (
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 rounded text-white ">
-                    <p className="text-8xl">Analizando...</p>
+                    <p className="text-8xl">Pensando...</p>
                 </div>
             )}
 
