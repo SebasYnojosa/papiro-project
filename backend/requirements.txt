@@ -2,3 +2,5 @@ flask
 pillow
 rembg
 onnxruntime
+tensorflow
+flask-cors

@@ -6,16 +6,46 @@ const CustomWebcam = () => {
     const webcamRef = useRef<Webcam>(null);
 
     const [imageSrc, setImageSrc] = useState<string | null>(null);
+    const [jugada, setJugada] = useState<number | null>(null);
+    const [isPredicting, setIsPredicting] = useState(false);
+    const [isPredicted, setIsPredicted] = useState(false);
+    const [isCapturing, setIsCapturing] = useState(false);
+    const [counter, setCounter] = useState(3);
     
     const capture = useCallback(() => {
-        const img = webcamRef.current?.getScreenshot();
-        if (img) {
-            setImageSrc(img);
-        }
+        setIsCapturing(true);
+        setCounter(3); // Reinicia  el contador
+
+        // Inicia el contador
+        const interval = setInterval(() => {
+            setCounter((prev) => {
+                if (prev <= 1) {
+                    clearInterval(interval);
+                    return 0;
+                }
+                return prev - 1;
+            })
+        }, 1000)
+
+        // Espera 3 segundos antes de capturar la imagen
+        setTimeout(() => {
+            const img = webcamRef.current?.getScreenshot();
+            if (img) {
+                setImageSrc(img);
+            }
+
+            setIsCapturing(false);
+        }, 3000);
+
+        
     }, [webcamRef]);
 
     const retake = () => {
         setImageSrc(null);
+        setJugada(null);
+        setIsPredicting(false);
+        setIsPredicted(false);
+        setIsCapturing(false);
     };
 
     const uploadImage = async () => {
@@ -27,6 +57,8 @@ const CustomWebcam = () => {
         const formData = new FormData();
         formData.append("image", file);
 
+        setIsPredicting(true);
+
         try {
             const response = await axios.post("http://localhost:5000/upload", formData, {
                 headers: {
@@ -34,10 +66,29 @@ const CustomWebcam = () => {
                 }
             });
             console.log("Image uploaded successfully:", response.data);
+            const prediction_array = response.data.prediction[0];
+            const jugada = prediction_array.indexOf(Math.max(...prediction_array));
+            console.log("Predicción:", jugada);
+            setJugada(jugada);
+            setIsPredicted(true);
         } catch (error) {
             console.error("Error uploading image:", error);
+        } finally {
+            setIsPredicting(false);
         }
     }
+
+    const handleJugada = (jugada: number | null) => {
+        if (jugada === 0) {
+            return "Papel";
+        } else if (jugada === 1) {
+            return "Piedra";
+        } else if (jugada === 2) {
+            return "Tijera";
+        } else {
+            return "No se ha detectado una jugada";
+        }
+    };
 
     return (
         <div className="flex h-screen relative">
@@ -87,6 +138,28 @@ const CustomWebcam = () => {
                     </button>
                 )}
             </div>
+
+            {/* Contador de 3 segundos para capturar la imagen */}
+            {isCapturing && (
+                <div className="absolute top-1/2 left-3/4 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded shadow">
+                    <p className="text-lg">{counter}</p>
+                </div>
+            )}
+
+            {/* Analizando la imagen, con un contador que cuenta 3 segundos */}
+            {isPredicting && (
+                <div className="absolute top-1/2 left-3/4 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded shadow">
+                    <p>Analizando...</p>
+                </div>
+            )}
+
+            {/* Resultado de la predicción */}
+            {isPredicted && (
+                <div className="absolute top-1/2 left-3/4 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded shadow">
+                    <p className="text-lg">Predicción: {handleJugada(jugada)}</p>
+                </div>
+            )}
+            
         </div>
     );
 };
