@@ -1,6 +1,7 @@
 import Webcam from "react-webcam";
 import { useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
+import { useNavigate } from 'react-router-dom';
 
 const CustomWebcam = () => {
     const webcamRef = useRef<Webcam>(null);
@@ -11,9 +12,20 @@ const CustomWebcam = () => {
     const [isPredicted, setIsPredicted] = useState(false);
     const [isCapturing, setIsCapturing] = useState(false);
     const [counter, setCounter] = useState(3);
+
+    const [jugadaIA, setJugadaIA] = useState<number | null>(null);
+    const navigate = useNavigate();
+
+    const opciones = ["Papel", "Piedra", "Tijera"];
+
+    
     
     const uploadImage = useCallback(async () => {
         console.log("uploadImage se ejecutó");
+        const jugadaIA = elegirJugadaIA();
+        const resultado = jugada !== null ? obtenerResultado(jugada, jugadaIA) : "Jugada no válida";
+        console.log("IA:", jugadaIA, "Resultado:", resultado);
+
         if (!imageSrc) return;
         console.log("La imagen existe");
         
@@ -44,6 +56,25 @@ const CustomWebcam = () => {
             setIsPredicting(false);
         }
     }, [imageSrc])
+
+    
+
+const elegirJugadaIA = () => {
+    const eleccion = Math.floor(Math.random() * 3); // 0, 1, 2
+    setJugadaIA(eleccion);
+    return eleccion;
+};
+
+const obtenerResultado = (jugador: number, ia: number) => {
+    if (jugador === ia) return "Empate";
+    if (
+        (jugador === 0 && ia === 1) || // Papel gana a Piedra
+        (jugador === 1 && ia === 2) || // Piedra gana a Tijera
+        (jugador === 2 && ia === 0)    // Tijera gana a Papel
+    ) return "Ganaste";
+    return "Perdiste";
+};
+
 
 
     const capture = useCallback(() => {
@@ -103,7 +134,10 @@ const CustomWebcam = () => {
         }
     };
 
+    
+
     return (
+        
         <div className="flex h-screen relative">
             <div className="flex-1 flex items-center justify-center bg-gray-100 ">
                 El rival aparecerá en la pantalla, por favor espera a que se cargue la cámara.
@@ -135,16 +169,19 @@ const CustomWebcam = () => {
             </div>
 
             {/* Button at the bottom */}
+            <button onClick={() => navigate('/instrucciones')} className="absolute top-4 left-4 px-3 py-1 bg-yellow-500 text-white rounded">
+  Instrucciones
+</button>
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
                 {imageSrc ? (
                     <>
                         <button onClick={retake} className="px-4 py-2 bg-blue-500 text-white rounded cursor-pointer">
-                            Retomar captura
+                            Intentar de nuevo
                         </button>
                     </>
                 ) : (
                     <button onClick={capture} className="px-4 py-2 bg-blue-500 text-white rounded cursor-pointer">
-                        Tomar captura
+                        Empezar
                     </button>
                 )}
             </div>
@@ -164,14 +201,17 @@ const CustomWebcam = () => {
             )}
 
             {/* Resultado de la predicción */}
-            {isPredicted && (
-                handleJugada(jugada) == "Piedra" ? (
-                    <img src="/public/piedra.png" alt="Piedra" className="absolute top-1/2 left-3/4 transform -translate-x-1/2 -translate-y-1/2" />
-                ) : handleJugada(jugada) == "Papel" ? (
-                    <img src="/public/papel.png" alt="Papel" className="absolute top-1/2 left-3/4 transform -translate-x-1/2 -translate-y-1/2" />
-                ) : (
-                    <img src="/public/tijera.png" alt="Tijera" className="absolute top-1/2 left-3/4 transform -translate-x-1/2 -translate-y-1/2" />
-                ) 
+            {isPredicted && jugadaIA !== null && (
+  <div className="absolute top-3/4 left-3/4 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded shadow">
+    <p className="text-lg">IA: {handleJugada(jugadaIA)}</p>
+    <p className="text-lg font-bold">{obtenerResultado(jugada!, jugadaIA)}</p>
+  </div>
+)}
+            {/* Resultado de la predicción */}
+            {isPredicted && jugada !== null && (
+                <div className="absolute top-3/4 left-1/4 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded shadow">
+                    <p className="text-lg">Tu jugada: {handleJugada(jugada)}</p>
+                </div>
             )}
             
         </div>
