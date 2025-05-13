@@ -24,7 +24,7 @@ model = load_model(model_path)
 
 @app.route('/upload', methods=['POST'])
 def upload_image():
-    # Aquí iría la lógica para manejar la subida de imágenes
+    # Lógica para manejar la carga de imágenes
     if 'image' not in request.files:
         return jsonify({"error": "No se encontró la imagen en la solicitud"}), 400
     

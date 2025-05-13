@@ -1,5 +1,5 @@
 import Webcam from "react-webcam";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
 
 const CustomWebcam = () => {
@@ -12,6 +12,40 @@ const CustomWebcam = () => {
     const [isCapturing, setIsCapturing] = useState(false);
     const [counter, setCounter] = useState(3);
     
+    const uploadImage = useCallback(async () => {
+        console.log("uploadImage se ejecutó");
+        if (!imageSrc) return;
+        console.log("La imagen existe");
+        
+
+        const blob = await fetch(imageSrc).then((res) => res.blob());
+        const file = new File([blob], "captura.png", { type: "image/jpeg"})
+        
+        const formData = new FormData();
+        formData.append("image", file);
+
+        setIsPredicting(true);
+
+        try {
+            const response = await axios.post("http://localhost:5000/upload", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                }
+            });
+            console.log("Image uploaded successfully:", response.data);
+            const prediction_array = response.data.prediction[0];
+            const jugada = prediction_array.indexOf(Math.max(...prediction_array));
+            console.log("Predicción:", jugada);
+            setJugada(jugada);
+            setIsPredicted(true);
+        } catch (error) {
+            console.error("Error uploading image:", error);
+        } finally {
+            setIsPredicting(false);
+        }
+    }, [imageSrc])
+
+
     const capture = useCallback(() => {
         setIsCapturing(true);
         setCounter(3); // Reinicia  el contador
@@ -40,6 +74,13 @@ const CustomWebcam = () => {
         
     }, [webcamRef]);
 
+    // Llamada a uploadImage después de capturar la imagen
+    useEffect(() => {
+        if (imageSrc) {
+            uploadImage();
+        }
+    }, [imageSrc, uploadImage]);
+
     const retake = () => {
         setImageSrc(null);
         setJugada(null);
@@ -48,35 +89,7 @@ const CustomWebcam = () => {
         setIsCapturing(false);
     };
 
-    const uploadImage = async () => {
-        if (!imageSrc) return;
-
-        const blob = await fetch(imageSrc).then((res) => res.blob());
-        const file = new File([blob], "captura.png", { type: "image/jpeg"})
-        
-        const formData = new FormData();
-        formData.append("image", file);
-
-        setIsPredicting(true);
-
-        try {
-            const response = await axios.post("http://localhost:5000/upload", formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                }
-            });
-            console.log("Image uploaded successfully:", response.data);
-            const prediction_array = response.data.prediction[0];
-            const jugada = prediction_array.indexOf(Math.max(...prediction_array));
-            console.log("Predicción:", jugada);
-            setJugada(jugada);
-            setIsPredicted(true);
-        } catch (error) {
-            console.error("Error uploading image:", error);
-        } finally {
-            setIsPredicting(false);
-        }
-    }
+    
 
     const handleJugada = (jugada: number | null) => {
         if (jugada === 0) {
@@ -128,9 +141,6 @@ const CustomWebcam = () => {
                         <button onClick={retake} className="px-4 py-2 bg-blue-500 text-white rounded cursor-pointer">
                             Retomar captura
                         </button>
-                        <button onClick={uploadImage} className="px-4 py-2 bg-green-500 text-white rounded ml-2 cursor-pointer">
-                            Subir captura
-                        </button>
                     </>
                 ) : (
                     <button onClick={capture} className="px-4 py-2 bg-blue-500 text-white rounded cursor-pointer">
@@ -155,9 +165,13 @@ const CustomWebcam = () => {
 
             {/* Resultado de la predicción */}
             {isPredicted && (
-                <div className="absolute top-1/2 left-3/4 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded shadow">
-                    <p className="text-lg">Predicción: {handleJugada(jugada)}</p>
-                </div>
+                handleJugada(jugada) == "Piedra" ? (
+                    <img src="/public/piedra.png" alt="Piedra" className="absolute top-1/2 left-3/4 transform -translate-x-1/2 -translate-y-1/2" />
+                ) : handleJugada(jugada) == "Papel" ? (
+                    <img src="/public/papel.png" alt="Papel" className="absolute top-1/2 left-3/4 transform -translate-x-1/2 -translate-y-1/2" />
+                ) : (
+                    <img src="/public/tijera.png" alt="Tijera" className="absolute top-1/2 left-3/4 transform -translate-x-1/2 -translate-y-1/2" />
+                ) 
             )}
             
         </div>
