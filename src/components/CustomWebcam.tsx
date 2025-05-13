@@ -8,7 +8,7 @@ const CustomWebcam = () => {
 
     const [imageSrc, setImageSrc] = useState<string | null>(null);
     const [jugada, setJugada] = useState<number | null>(null);
-    const [jugadaRival, setJugadaRival] = useState<number | null>(null);
+    const [robotState, setRobotState] = useState<number | null>(null);
     const [isPredicting, setIsPredicting] = useState(false);
     const [isPredicted, setIsPredicted] = useState(false);
     const [isCapturing, setIsCapturing] = useState(false);
@@ -16,15 +16,15 @@ const CustomWebcam = () => {
 
     const navigate = useNavigate();
 
-    const jugadaRivalRandom = () => {
+    const robotStateRandom = () => {
         const randomJugada = Math.floor(Math.random() * 3);
-        setJugadaRival(randomJugada);
+        setRobotState(randomJugada);
         return randomJugada;
     }
     
     const uploadImage = useCallback(async () => {
         console.log("uploadImage se ejecutó");
-        const jugadaIA = elegirJugadaIA();
+        const jugadaIA = robotStateRandom();
         const resultado = jugada !== null ? obtenerResultado(jugada, jugadaIA) : "Jugada no válida";
         console.log("IA:", jugadaIA, "Resultado:", resultado);
 
@@ -57,27 +57,19 @@ const CustomWebcam = () => {
             console.error("Error uploading image:", error);
         } finally {
             setIsPredicting(false);
-            jugadaRivalRandom();
+            robotStateRandom();
         }
     }, [imageSrc])
 
-    
-
-const elegirJugadaIA = () => {
-    const eleccion = Math.floor(Math.random() * 3); // 0, 1, 2
-    setJugadaRival(eleccion);
-    return eleccion;
-};
-
-const obtenerResultado = (jugador: number, ia: number) => {
-    if (jugador === ia) return "Empate";
-    if (
-        (jugador === 0 && ia === 1) || // Papel gana a Piedra
-        (jugador === 1 && ia === 2) || // Piedra gana a Tijera
-        (jugador === 2 && ia === 0)    // Tijera gana a Papel
-    ) return "Ganaste";
-    return "Perdiste";
-};
+    const obtenerResultado = (jugador: number, ia: number) => {
+        if (jugador === ia) return "Empate";
+        if (
+            (jugador === 0 && ia === 1) || // Papel gana a Piedra
+            (jugador === 1 && ia === 2) || // Piedra gana a Tijera
+            (jugador === 2 && ia === 0)    // Tijera gana a Papel
+        ) return "Ganaste";
+        return "Perdiste";
+    };
 
 
 
@@ -139,13 +131,13 @@ const obtenerResultado = (jugador: number, ia: number) => {
     };
 
     const handleEnfrentamiento = () => {
-        if (jugada !== null && jugadaRival !== null) {
-            if (jugada === jugadaRival) {
+        if (jugada !== null && robotState !== null) {
+            if (jugada === robotState) {
                 return "Empate";
             } else if (
-                (jugada === 0 && jugadaRival === 1) || // Papel gana a Piedra
-                (jugada === 1 && jugadaRival === 2) || // Piedra gana a Tijera
-                (jugada === 2 && jugadaRival === 0)    // Tijera gana a Papel
+                (jugada === 0 && robotState === 1) || // Papel gana a Piedra
+                (jugada === 1 && robotState === 2) || // Piedra gana a Tijera
+                (jugada === 2 && robotState === 0)    // Tijera gana a Papel
             ) {
                 return "Ganaste";
             }
@@ -164,17 +156,17 @@ const obtenerResultado = (jugador: number, ia: number) => {
             {/* Resultado de la predicción */}
             {isPredicted ? (
                 <div className="flex-1 flex items-center justify-center bg-tomato ">
-                    {handleJugada(jugadaRival) == "Piedra" ? (
-                        <img src="/piedra.png" alt="Piedra" className="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2" />
-                    ) : handleJugada(jugadaRival) == "Papel" ? (
-                        <img src="/papel.png" alt="Papel" className="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2" />
+                    {handleJugada(robotState) == "Piedra" ? (
+                        <img src="/robotPiedra.png" alt="Piedra" className="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2" />
+                    ) : handleJugada(robotState) == "Papel" ? (
+                        <img src="/robotPapel.png" alt="Papel" className="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2" />
                     ) : (
-                        <img src="/tijera.png" alt="Tijera" className="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2" />
+                        <img src="/robotTijeras.png" alt="Tijera" className="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2" />
                     )}  
                 </div>
             ) : (
                 <div className="flex-1 flex items-center justify-center bg-tomato ">
-                    El rival aparecerá en la pantalla, por favor espera a que se cargue la cámara.
+                    <img src="/robotInicial.png" alt="Inicial" className="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2" />
                 </div>
             )}
 
